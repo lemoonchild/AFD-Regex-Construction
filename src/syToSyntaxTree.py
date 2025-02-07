@@ -1,4 +1,9 @@
-# Definición de operadores (se usa para la construcción del árbol)
+# syToSyntaxTree.py
+
+from graphviz import Digraph
+import os
+import platform
+
 OPERADORES = {'+', '.', '*'}
 
 class Nodo:
@@ -8,7 +13,7 @@ class Nodo:
         self.derecho = derecho
 
     def __str__(self):
-        # Representación sencilla del árbol para depuración
+        # Representación sencilla del árbol para depuración.
         if self.izquierdo is None and self.derecho is None:
             return self.valor
         elif self.valor == '*':  # Operador unario
@@ -49,3 +54,55 @@ def postfix_a_arbol_sintactico(postfix: str) -> Nodo:
     if len(pila) != 1:
         raise ValueError("Error en la construcción del árbol sintáctico: elementos sobrantes en la pila.")
     return pila[0]
+
+def visualizar_arbol_sintactico(arbol: Nodo, filename="syntax_tree"):
+    """
+    Genera y visualiza el árbol sintáctico utilizando Graphviz.
+    
+    - Cada nodo muestra dos líneas: la primera con el símbolo original y la segunda con
+      el número (para hojas) o la letra griega (para operadores).
+    - La asignación se realiza en postorden (de abajo hacia arriba).
+    
+    Se genera un archivo (por defecto syntax_tree.png) con la visualización y se abre automáticamente.
+    """
+    dot = Digraph()
+    leaf_counter = [1]     # Contador mutable para hojas (números)
+    branch_counter = [0]   # Contador mutable para nodos internos (letras griegas)
+    greek_letters = ['α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π','ρ','σ','τ','υ','φ','χ','ψ','ω']
+
+    def add_nodes(node):
+        node_id = str(id(node))
+        left_id = None
+        right_id = None
+        # Recorrer primero los hijos (postorden)
+        if node.izquierdo is not None:
+            left_id = add_nodes(node.izquierdo)
+        if node.derecho is not None:
+            right_id = add_nodes(node.derecho)
+        
+        if node.izquierdo is None and node.derecho is None:
+            # Nodo hoja: asignar número
+            label_sub = str(leaf_counter[0])
+            leaf_counter[0] += 1
+        else:
+            # Nodo interno (operador): asignar letra griega
+            if branch_counter[0] < len(greek_letters):
+                label_sub = greek_letters[branch_counter[0]]
+            else:
+                label_sub = "G" + str(branch_counter[0])
+            branch_counter[0] += 1
+
+        # Se crea la etiqueta con el símbolo y en la siguiente línea el número/letra
+        label = f"{node.valor}\n{label_sub}"
+        dot.node(node_id, label)
+        
+        # Se agregan las aristas hacia los hijos, si existen
+        if left_id is not None:
+            dot.edge(node_id, left_id)
+        if right_id is not None:
+            dot.edge(node_id, right_id)
+        return node_id
+
+    add_nodes(arbol)
+    dot.render(filename, cleanup=True, view=True)
+    return dot

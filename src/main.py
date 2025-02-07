@@ -1,6 +1,6 @@
 from validateRegex import validar_regex
 from regexToSY import insertar_operador_concatenacion, infix_a_postfix
-from syToSyntaxTree import postfix_a_arbol_sintactico
+from syToSyntaxTree import postfix_a_arbol_sintactico, visualizar_arbol_sintactico
 
 def main():
     # Solicitar al usuario la expresión regular
@@ -11,7 +11,7 @@ def main():
         print("La expresión regular no es válida.")
         return
 
-    # Inserción de operadores de concatenación (para convertir concatenaciones implícitas en explícitas)
+    # Inserción de operadores de concatenación (convierte concatenaciones implícitas en explícitas)
     regex_concatenada = insertar_operador_concatenacion(regex_entrada)
     print("Expresión regular con concatenación explícita:", regex_concatenada)
 
@@ -31,6 +31,13 @@ def main():
     except ValueError as error:
         print("Error al construir el árbol sintáctico:", error)
         return
+
+    # Visualización del árbol sintáctico con Graphviz.
+    try:
+        visualizar_arbol_sintactico(arbol_sintactico, "syntax_tree")
+        print("Se ha generado y abierto el archivo 'syntax_tree.png' con la visualización del árbol sintáctico.")
+    except Exception as e:
+        print("Error al generar la visualización con Graphviz:", e)
 
 if __name__ == "__main__":
     main()
