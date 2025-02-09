@@ -2,6 +2,7 @@ from validateRegex import validar_regex
 from regexToSY import infix_a_postfix
 from syToSyntaxTree import postfix_a_arbol_sintactico, visualizar_arbol_sintactico
 from astToDFA import direct_dfa_from_ast 
+from graphAFD import graph_dfa
 
 def main():
     regex_entrada = input("Ingrese la expresión regular: ")
@@ -66,8 +67,13 @@ def main():
         # Mostrar los estados de aceptación
         print("\nEstados de aceptación:")
         print(accepting_states)
+
     except Exception as e:
         print("Error al construir el DFA:", e)
 
+    # Generar y visualizar el DFA con Graphviz
+    print("\nGenerando y visualizando el DFA con Graphviz...")
+    graph_dfa(dfa_states, transitions, accepting_states)
+    
 if __name__ == "__main__":
     main()
