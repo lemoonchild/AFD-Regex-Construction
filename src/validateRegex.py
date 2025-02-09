@@ -8,7 +8,7 @@ def validar_regex(regex: str) -> bool:
     Verifica además que los paréntesis y las clases de caracteres (entre '[' y ']') estén balanceados.
     """
     # Definimos un conjunto de caracteres “permitidos” fuera de secuencias especiales.
-    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#|.+*()\\[]")
+    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$|.+*()\\[]")
     i = 0
     while i < len(regex):
         char = regex[i]
