@@ -5,6 +5,7 @@ from astToDFA import direct_dfa_from_ast
 from graphAFD import graph_dfa
 from AFDtoMinimizedAFD import minimize_dfa
 from graphMinimizedAFD import graph_minimized_dfa
+from simulateDFA import process_input 
 
 def main():
     regex_entrada = input("Ingrese la expresión regular: ")
@@ -104,6 +105,10 @@ def main():
     # Graficar el DFA minimizado con Graphviz
     print("\nGenerando y visualizando el DFA MINIMIZADO con Graphviz...\n")
     graph_minimized_dfa(new_initial, new_transitions, new_accepting)
+
+    # Procesar cadenas: permitir al usuario ingresar cadenas y mostrar si son aceptadas
+    print("\n--- SIMULACIÓN DEL DFA MINIMIZADO ---")
+    process_input(new_transitions, new_initial, new_accepting)
 
 if __name__ == "__main__":
     main()
