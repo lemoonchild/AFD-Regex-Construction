@@ -107,20 +107,20 @@ def build_dfa(root, pos_dict, followpos):
     transitions = {}
     accepting_states = set()
 
-    # Determinar la posición del marcador '#' (si se utiliza como final de cadena)
+    # Determinar la posición del marcador '$' (marcador de fin de cadena)
     marker_pos = None
     for pos, symbol in pos_dict.items():
-        if symbol == '#':
+        if symbol == '$':
             marker_pos = pos
             break
 
     while unmarked:
         state = unmarked.pop()
         transitions[state] = {}
-        # Obtener el alfabeto a partir de las hojas en el estado (excluyendo '#' si se desea)
+        # Para cada símbolo (excluyendo '$')
         alphabet = set()
         for p in state:
-            if pos_dict[p] != '#':
+            if pos_dict[p] != '$':
                 alphabet.add(pos_dict[p])
         for symbol in alphabet:
             new_state = set()
