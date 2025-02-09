@@ -3,6 +3,8 @@ from regexToSY import infix_a_postfix
 from syToSyntaxTree import postfix_a_arbol_sintactico, visualizar_arbol_sintactico
 from astToDFA import direct_dfa_from_ast 
 from graphAFD import graph_dfa
+from AFDtoMinimizedAFD import minimize_dfa
+from graphMinimizedAFD import graph_minimized_dfa
 
 def main():
     regex_entrada = input("Ingrese la expresión regular: ")
@@ -74,6 +76,34 @@ def main():
     # Generar y visualizar el DFA con Graphviz
     print("\nGenerando y visualizando el DFA con Graphviz...")
     graph_dfa(dfa_states, transitions, accepting_states)
+
+    # Convertir las transiciones del DFA directo a un formato "plano": de estado_id a transiciones.
+    dfa_transitions = {}
+    for state, trans in transitions.items():
+        state_id = dfa_states[state]
+        dfa_transitions[state_id] = {}
+        for symbol, next_state in trans.items():
+            dfa_transitions[state_id][symbol] = dfa_states[next_state]
     
+    dfa_accepting = accepting_states  # ya es un conjunto de números de estado
+
+    # Minimización del DFA
+    try:
+        new_initial, new_transitions, new_accepting, state_to_block, P = minimize_dfa(dfa_transitions, dfa_accepting)
+        print("\n--- DFA MINIMIZADO ---")
+        print("\nEstado inicial minimizado:", new_initial)
+        print("\nTransiciones del DFA minimizado:")
+        for s, trans in new_transitions.items():
+            for symbol, dest in trans.items():
+                print(f"  Estado {s} -- {symbol} --> Estado {dest}")
+        print("\nEstados de aceptación minimizados:", new_accepting)
+    except Exception as e:
+        print("Error al minimizar el DFA:", e)
+        return
+
+    # Graficar el DFA minimizado con Graphviz
+    print("\nGenerando y visualizando el DFA MINIMIZADO con Graphviz...\n")
+    graph_minimized_dfa(new_initial, new_transitions, new_accepting)
+
 if __name__ == "__main__":
     main()
