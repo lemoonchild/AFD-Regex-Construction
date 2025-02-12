@@ -41,26 +41,27 @@ def compute_functions(node, pos_counter, pos_dict):
         compute_functions(node.derecho, pos_counter, pos_dict)
 
     # Calcular según el operador del nodo
-    if node.valor == '|':
-        node.nullable = node.izquierdo.nullable or node.derecho.nullable
-        node.firstpos = node.izquierdo.firstpos.union(node.derecho.firstpos)
-        node.lastpos = node.izquierdo.lastpos.union(node.derecho.lastpos)
-    elif node.valor == '.':
-        node.nullable = node.izquierdo.nullable and node.derecho.nullable
-        if node.izquierdo.nullable:
+    if node.token_type == "OPERATOR":
+        if node.valor == '|':
+            node.nullable = node.izquierdo.nullable or node.derecho.nullable
             node.firstpos = node.izquierdo.firstpos.union(node.derecho.firstpos)
-        else:
-            node.firstpos = node.izquierdo.firstpos
-        if node.derecho.nullable:
             node.lastpos = node.izquierdo.lastpos.union(node.derecho.lastpos)
+        elif node.valor == '.':
+            node.nullable = node.izquierdo.nullable and node.derecho.nullable
+            if node.izquierdo.nullable:
+                node.firstpos = node.izquierdo.firstpos.union(node.derecho.firstpos)
+            else:
+                node.firstpos = node.izquierdo.firstpos
+            if node.derecho.nullable:
+                node.lastpos = node.izquierdo.lastpos.union(node.derecho.lastpos)
+            else:
+                node.lastpos = node.derecho.lastpos
+        elif node.valor == '*':
+            node.nullable = True
+            node.firstpos = node.izquierdo.firstpos
+            node.lastpos = node.izquierdo.lastpos
         else:
-            node.lastpos = node.derecho.lastpos
-    elif node.valor == '*':
-        node.nullable = True
-        node.firstpos = node.izquierdo.firstpos
-        node.lastpos = node.izquierdo.lastpos
-    else:
-        raise ValueError(f"Operador desconocido en compute_functions: {node.valor}")
+            raise ValueError(f"Operador desconocido en compute_functions: {node.valor}")
 
 def compute_followpos(node, followpos):
     """
@@ -71,14 +72,16 @@ def compute_followpos(node, followpos):
       - Para un nodo de Kleene star ('*'):
             Para cada posición p en lastpos(nodo), se añade firstpos(nodo) a followpos[p].
     """
-    if node is None:
-        return
-    if node.valor == '.':
-        for p in node.izquierdo.lastpos:
-            followpos[p] = followpos[p].union(node.derecho.firstpos)
-    if node.valor == '*':
-        for p in node.lastpos:
-            followpos[p] = followpos[p].union(node.firstpos)
+
+    # Procesamos nodos de operador.
+    if node.token_type == "OPERATOR":
+        if node.valor == '.':
+                for p in node.izquierdo.lastpos:
+                    followpos[p] = followpos[p].union(node.derecho.firstpos)
+        elif node.valor == '*':
+            for p in node.lastpos:
+                followpos[p] = followpos[p].union(node.firstpos)
+
     # Recorrer recursivamente en postorden
     if node.izquierdo:
         compute_followpos(node.izquierdo, followpos)
@@ -155,11 +158,10 @@ def direct_dfa_from_ast(root):
     pos_dict = {}          # Diccionario: posición -> símbolo
     # Calcular funciones en el AST
     compute_functions(root, pos_counter, pos_dict)
-    
     # Inicializar la tabla followpos
     followpos = defaultdict(set)
     compute_followpos(root, followpos)
-    
+
     # Construir el DFA a partir del AST y de la tabla followpos
     dfa_states, transitions, accepting_states = build_dfa(root, pos_dict, followpos)
     return dfa_states, transitions, accepting_states, pos_dict, followpos
