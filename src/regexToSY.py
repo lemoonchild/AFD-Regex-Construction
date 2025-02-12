@@ -1,6 +1,6 @@
-OPERADORES = {'|', '.', '*', '+'}
-PRECEDENCIA = {'*': 4, '+': 4, '.': 3, '|': 2}
-ASOCIATIVIDAD = {'*': 'right', '+': 'right', '.': 'left', '|': 'left'}
+OPERADORES = {'|', '.', '*', '+', '?'}
+PRECEDENCIA = {'*': 4, '+': 4, '?': 4, '.': 3, '|': 2}
+ASOCIATIVIDAD = {'*': 'right', '+': 'right', '?': 'right', '.': 'left', '|': 'left'}
 
 def tokenize(regex: str):
     """
@@ -64,7 +64,7 @@ def insertar_operador_concatenacion_tokens(tokens):
             current = tokens[i]
             next_tok = tokens[i + 1]
             # Determinamos si current es "operand-like"
-            if (current[0] in ["LITERAL", "BRACKET"]) or (current[0] == "PAREN" and current[1] == ")") or (current[0] == "OPERATOR" and current[1] in ["*", "+"]):
+            if (current[0] in ["LITERAL", "BRACKET"]) or (current[0] == "PAREN" and current[1] == ")") or (current[0] == "OPERATOR" and current[1] in ["*", "+", "?"]):
                 # Determinamos si next_tok es "operand-like" (para concatenar)
                 if (next_tok[0] in ["LITERAL", "BRACKET"]) or (next_tok[0] == "PAREN" and next_tok[1] == "("):
                     new_tokens.append(("OPERATOR", "."))

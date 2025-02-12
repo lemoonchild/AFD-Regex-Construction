@@ -85,6 +85,14 @@ def postfix_a_arbol_sintactico(postfix_tokens: list) -> Nodo:
                 nuevo_nodo = Nodo('.', "OPERATOR", izquierdo=operand, 
                                     derecho=Nodo('*', "OPERATOR", izquierdo=copy.deepcopy(operand)))
                 pila.append(nuevo_nodo)
+            elif token_value == '?':
+                if not pila:
+                    raise ValueError("Error: Operador '?' sin operando.")
+                operand = pila.pop()
+                # Reescribir: X? se transforma en (X | ε), usando '#' para representar la cadena vacía (ε)
+                epsilon_node = Nodo('#', "LITERAL")
+                nuevo_nodo = Nodo('|', "OPERATOR", izquierdo=operand, derecho=epsilon_node)
+                pila.append(nuevo_nodo)
             elif token_value in ['.', '|']:
                 if len(pila) < 2:
                     raise ValueError(f"Error: Operador {token_value} sin suficientes operandos.")
